@@ -1,29 +1,47 @@
 package model
 
 import (
-    "os"
     "log"
-    "time"
+    "os"
 
-    "github.com/joho/godotenv"
-    "github.com/satori/go.uuid"
     "github.com/jinzhu/gorm"
+    _ "github.com/jinzhu/gorm/dialects/mssql"
     _ "github.com/jinzhu/gorm/dialects/mysql"
     _ "github.com/jinzhu/gorm/dialects/postgres"
     _ "github.com/jinzhu/gorm/dialects/sqlite"
-    _ "github.com/jinzhu/gorm/dialects/mssql"
-
+    "github.com/joho/godotenv"
 )
 
-var database *gorm.DB
+// var database *gorm.DB
 
+type Database struct {
+    *gorm.DB
+}
+
+func New() (*Database, error) {
+    if err := godotenv.Load(); err != nil {
+        log.Fatalln("Error loading .env file")
+    }
+
+    dbEngine := os.Getenv("DB_ENGINE")
+    dbConnect := os.Getenv("DB_CONNECT")
+    dbLogMode := os.Getenv("DB_LOG_MODE")
+
+    db, err := gorm.Open(dbEngine, dbConnect)
+    if err != nil {
+        return nil, errors.Wrap(err, "unable to connect to database")
+    }
+    return &Database{db}, nil
+}
+
+/**
 func init() {
     if database != nil {
         if err := database.DB().Ping(); err == nil {
             log.Fatalln(err.Error())
         }
     }
-    
+
     if err := godotenv.Load(); err != nil {
         log.Fatalln("Error loading .env file")
     }
@@ -44,25 +62,11 @@ func init() {
 
     db.LogMode(dbLogMode == "true")
     db.AutoMigrate(&Chemical{})
-    
+
     database = db
 }
 
 func GetDatabase() *gorm.DB {
     return database
 }
-
-// Base contains common columns for all tables.
-type Base struct {
-    ID        uuid.UUID `json:"id";gorm:"primary_key;type:char(36);`
-    CreatedAt time.Time `json:"created_at";`
-    UpdatedAt time.Time `json:"updated_at";`
-    DeletedAt *time.Time `json:"-";`
-}
-
-// BeforeCreate will set a UUID rather than numeric ID.
-func (base *Base) BeforeCreate(scope *gorm.Scope) error {
-    uuid := uuid.NewV4()
-
-    return scope.SetColumn("ID", uuid)
-}
+*/

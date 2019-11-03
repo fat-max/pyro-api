@@ -1,12 +1,13 @@
 package main
 
 import (
+	_ "bytes"
 	"fmt"
 	"log"
-	
+	"net/http"
+
 	"github.com/fat-max/pyro-api/route"
 	"github.com/gorilla/mux"
-	"net/http"
 )
 
 func main() {
@@ -17,6 +18,7 @@ func main() {
 	api.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "api v0.1")
 	})
+
 	api.HandleFunc("/chemicals", route.AllChemicals).Methods(http.MethodGet)
 	api.HandleFunc("/chemicals/{id}", route.Chemical).Methods(http.MethodGet)
 
