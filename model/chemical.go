@@ -2,21 +2,21 @@ package model
 
 import (
     "log"
-    _ "fmt"
+
+    "github.com/jinzhu/gorm"
 )
 
 type Chemical struct {
-    Base
-    Name string `json:"name"`
+    gorm.Model
+    Name            string `json:"name"`
     DescriptionLink string `json:"description_link"`
-    Slug string `json:"slug"`
+    Slug            string `json:"slug"`
 }
 
-func GetChemical(id string) (*Chemical) {
+func GetChemical(slug string) (*Chemical) {
     chemical := &Chemical{}
-    
 
-    if err := GetDatabase().Table("chemicals").Where("id = ?", id).First(chemical).Error; err != nil {
+    if err := GetDatabase().Table("chemicals").Where("slug = ?", slug).First(chemical).Error; err != nil {
         log.Println(err.Error())
         return nil
     }
@@ -27,7 +27,7 @@ func GetChemical(id string) (*Chemical) {
 func GetAllChemicals() ([]*Chemical) {
     chemicals := make([]*Chemical, 0)
     
-    if err := GetDatabase().Table("chemicals").Find(&chemicals).Error; err != nil {
+    if err := GetDatabase().Table("chemicals").Order("Name").Find(&chemicals).Error; err != nil {
         log.Println(err.Error())
         return nil
     }

@@ -3,10 +3,8 @@ package model
 import (
     "os"
     "log"
-    "time"
 
     "github.com/joho/godotenv"
-    "github.com/satori/go.uuid"
     "github.com/jinzhu/gorm"
     _ "github.com/jinzhu/gorm/dialects/mysql"
     _ "github.com/jinzhu/gorm/dialects/postgres"
@@ -25,6 +23,7 @@ func init() {
     }
     
     if err := godotenv.Load(); err != nil {
+        log.Println(err)
         log.Fatalln("Error loading .env file")
     }
 
@@ -50,19 +49,4 @@ func init() {
 
 func GetDatabase() *gorm.DB {
     return database
-}
-
-// Base contains common columns for all tables.
-type Base struct {
-    ID        uuid.UUID `json:"id";gorm:"primary_key;type:char(36);`
-    CreatedAt time.Time `json:"created_at";`
-    UpdatedAt time.Time `json:"updated_at";`
-    DeletedAt *time.Time `json:"-";`
-}
-
-// BeforeCreate will set a UUID rather than numeric ID.
-func (base *Base) BeforeCreate(scope *gorm.Scope) error {
-    uuid := uuid.NewV4()
-
-    return scope.SetColumn("ID", uuid)
 }
